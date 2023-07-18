@@ -17,6 +17,7 @@ class Network:
         self.loss = loss
         self.loss_prime = loss_prime
 
+    #Predicting
     def predict(self, input_data):
         m = input_data.shape[1]
         y_prediction = np.zeros((1, m))
