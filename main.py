@@ -5,10 +5,10 @@ from Layers.activations import RelU, RelU_prime, sigmoid, sigmoid_prime, tanh, t
 from Layers.losses import log_loss, log_loss_prime
 
 # Hyperparameters
-EPOCHS = 10000
+EPOCHS = 5000
 LEARNING_RATE = 0.002
 REGULARIZATION = True
-LAMBD = 0.7
+LAMBD = 0.95
 
 net = Network()
 input_shape = train_x.shape[0]

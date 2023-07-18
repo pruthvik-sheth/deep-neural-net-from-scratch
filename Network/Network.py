@@ -36,8 +36,8 @@ class Network:
     def fit(self, x_train, y_train, x_test, y_test, epochs, learning_rate, regularization = False, lambd = 0.7):
         m = x_train.shape[1]
         current_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-        train_log_dir = './logs/' + current_time + '/train'
-        test_log_dir = './logs/' + current_time + '/test'
+        train_log_dir = './logs/' + current_time + '_lr_' + str(learning_rate) + '_reg_' + str(regularization) + '_lmd_' + str(lambd) + '/train'
+        test_log_dir = './logs/' + current_time + '_lr_' + str(learning_rate) + '_reg_' + str(regularization) + '_lmd_' + str(lambd) + '/test'
         train_summary_writer = tf.summary.create_file_writer(train_log_dir)
         test_summary_writer = tf.summary.create_file_writer(test_log_dir)
 
