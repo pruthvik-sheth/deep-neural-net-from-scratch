@@ -17,6 +17,28 @@ def pre_process_image(img_name, path):
 
     return img_cropped
 
+def flatten_images(train_x, test_x):
+    train_x_flatten = train_x.reshape((
+    train_x.shape[0],
+    -1
+    )).T
+
+    test_x_flatten = test_x.reshape((
+        test_x.shape[0],
+        -1
+    )).T
+
+    print(train_x_flatten.shape)
+    print(test_x_flatten.shape)
+
+    return train_x_flatten, test_x_flatten
+
+def normalize(train_x, test_x):
+    train_x_normalized = train_x / 255.
+    test_x_normalized = test_x / 255.
+
+    return train_x_normalized, test_x_normalized
+
 def load_images():
     print('Loading and pre-processing images...')
     images_data = []
@@ -79,28 +101,6 @@ def split_features_labels(train_data, test_data):
 
     return X_train, X_test, Y_train, Y_test
 
-def flatten_images(train_x, test_x):
-    train_x_flatten = train_x.reshape((
-    train_x.shape[0],
-    -1
-    )).T
-
-    test_x_flatten = test_x.reshape((
-        test_x.shape[0],
-        -1
-    )).T
-
-    print(train_x_flatten.shape)
-    print(test_x_flatten.shape)
-
-    return train_x_flatten, test_x_flatten
-
-def normalize(train_x, test_x):
-    train_x_normalized = train_x / 255.
-    test_x_normalized = test_x / 255.
-
-    return train_x_normalized, test_x_normalized
-
 def generate_dataset(X_train, X_test, Y_train, Y_test):
     print("Generating the dataset...")
     train_x = np.array(X_train)
@@ -122,7 +122,6 @@ def generate_dataset(X_train, X_test, Y_train, Y_test):
     train_x, test_x = normalize(train_x, test_x)
 
     return train_x, test_x, train_y, test_y
-
 
 images = load_images()
 train_cats_dogs, test_cats_dogs = train_test_split(images)
