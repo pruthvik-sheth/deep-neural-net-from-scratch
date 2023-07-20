@@ -9,6 +9,7 @@ CATEGORIES = ["Dog", "Cat"]
 IMAGE_SIZE = 64
 DATASET_SIZE = 5000
 TRAIN_SPLIT = 0.8
+BATCH_SIZE = 64
 
 def pre_process_image(img_name, path):
     img_array_bgr = cv2.imread(os.path.join(path, img_name))
