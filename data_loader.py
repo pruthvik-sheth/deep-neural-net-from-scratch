@@ -5,171 +5,127 @@ import cv2
 import random
 
 DATADIR = '../Datasets/kagglecatsanddogs_5340/PetImages/'
-
 CATEGORIES = ["Dog", "Cat"]
-
 IMAGE_SIZE = 64
-images_data = []
 DATASET_SIZE = 5000
+TRAIN_SPLIT = 0.8
 
-def create_dataset():
+def pre_process_image(img_name, path):
+    img_array_bgr = cv2.imread(os.path.join(path, img_name))
+    img_array_rgb = cv2.cvtColor(img_array_bgr, cv2.COLOR_BGR2RGB)
+    img_cropped = cv2.resize(img_array_rgb, (IMAGE_SIZE, IMAGE_SIZE))
+
+    return img_cropped
+
+def load_images():
+    print('Loading and pre-processing images...')
+    images_data = []
 
     for category in CATEGORIES:
         path = os.path.join(DATADIR, category)
         class_num = CATEGORIES.index(category)
         image_count = 0
 
-        for img_path in os.listdir(path):
+        for img_name in os.listdir(path):
             if image_count != (DATASET_SIZE / 2):
                 try:
-                    img_array_bgr = cv2.imread(os.path.join(path, img_path))
-                    img_array_rgb = cv2.cvtColor(
-                        img_array_bgr, cv2.COLOR_BGR2RGB)
-                    img_cropped = cv2.resize(
-                        img_array_rgb, (IMAGE_SIZE, IMAGE_SIZE))
-                    images_data.append([img_cropped, class_num])
+                    image = pre_process_image(img_name, path)
+                    images_data.append([image, class_num])
                     image_count += 1
                 except Exception as e:
                     # In case some broken images are found
                     pass
             else:
                 break
+    
+    return images_data
 
+def train_test_split(images):
+    print("Generating train and test data...")
+    # Spliting Cats and Dogs
+    half_split = len(images) // 2
+    dogs = images[:half_split]
+    cats = images[half_split:len(images)]
 
-create_dataset()
+    train_split_num = int(len(dogs) * TRAIN_SPLIT)
 
-half_split = len(images_data) // 2
-dogs = images_data[:half_split]
-cats = images_data[half_split: len(images_data)]
+    train_dogs = dogs[:train_split_num]
+    test_dogs = dogs[train_split_num:len(dogs)]
+    train_cats = cats[:train_split_num]
+    test_cats = cats[train_split_num:len(cats)]
 
-train_split = int(len(dogs) * 0.8)
-test_split = int(len(dogs) * 0.2)
+    train_cats_dogs = train_dogs + train_cats
+    test_cats_dogs = test_dogs + test_cats
 
-train_dogs = dogs[:train_split]
-test_dogs = dogs[train_split: len(dogs)]
-train_cats = cats[:train_split]
-test_cats = cats[train_split: len(cats)]
+    random.shuffle(train_cats_dogs)
+    random.shuffle(test_cats_dogs)
 
-train_x_cats_dogs = train_dogs + train_cats
-test_x_cats_dogs = test_dogs + test_cats
+    return train_cats_dogs, test_cats_dogs
 
-random.shuffle(train_x_cats_dogs)
-random.shuffle(test_x_cats_dogs)
+def split_features_labels(train_data, test_data):
 
-X_train = []
-X_test = []
-Y_train = []
-Y_test = []
+    X_train = []
+    X_test = []
+    Y_train = []
+    Y_test = []
 
-for features, labels in train_x_cats_dogs:
-    X_train.append(features)
-    Y_train.append(labels)
+    for features, labels in train_data:
+        X_train.append(features)
+        Y_train.append(labels)
 
-for features1, labels1 in test_x_cats_dogs:
-    X_test.append(features1)
-    Y_test.append(labels1)
+    for features1, labels1 in test_data:
+        X_test.append(features1)
+        Y_test.append(labels1)
 
-train_raw_x = np.array(X_train)
-test_raw_x = np.array(X_test)
-train_y = np.array(Y_train)
-test_y = np.array(Y_test)
+    return X_train, X_test, Y_train, Y_test
 
-train_y = train_y.reshape((1, len(train_y)))
-test_y = test_y.reshape((1, len(test_y)))
-
-print('Shape of Training-X set: ', train_raw_x.shape)
-print('Shape of Testing-X set: ', test_raw_x.shape)
-print('Shape of Training-y set: ', train_y.shape)
-print('Shape of Testing-y set: ', test_y.shape)
-
-train_x_flatten = train_raw_x.reshape((
-    train_raw_x.shape[0],
+def flatten_images(train_x, test_x):
+    train_x_flatten = train_x.reshape((
+    train_x.shape[0],
     -1
-)).T
+    )).T
 
-test_x_flatten = test_raw_x.reshape((
-    test_raw_x.shape[0],
-    -1
-)).T
+    test_x_flatten = test_x.reshape((
+        test_x.shape[0],
+        -1
+    )).T
 
-print(train_x_flatten.shape)
-print(test_x_flatten.shape)
+    print(train_x_flatten.shape)
+    print(test_x_flatten.shape)
 
-train_x = train_x_flatten / 255.
-test_x = test_x_flatten / 255.
+    return train_x_flatten, test_x_flatten
 
-print('Data loading finished! \n\n')
+def normalize(train_x, test_x):
+    train_x_normalized = train_x / 255.
+    test_x_normalized = test_x / 255.
 
+    return train_x_normalized, test_x_normalized
 
-# DATADIR = '../Datasets/Car-Bike-Dataset/'
-# CATEGORIES = ["Car", "Bike"]
+def generate_dataset(X_train, X_test, Y_train, Y_test):
+    print("Generating the dataset...")
+    train_x = np.array(X_train)
+    test_x = np.array(X_test)
+    train_y = np.array(Y_train)
+    test_y = np.array(Y_test)
 
-# images_data = []
-# # categories_label = []
+    train_y = train_y.reshape((1, len(train_y)))
+    test_y = test_y.reshape((1, len(test_y)))
 
+    print('Shape of Training-X set: ', train_x.shape)
+    print('Shape of Testing-X set: ', test_x.shape)
+    print('Shape of Training-y set: ', train_y.shape)
+    print('Shape of Testing-y set: ', test_y.shape)
 
-# def create_image():
+    # Flattening the images data
+    train_x, test_x = flatten_images(train_x, test_x)
+    # Normalizing the images data
+    train_x, test_x = normalize(train_x, test_x)
 
-#     for categories in CATEGORIES:
-#         path = os.path.join(DATADIR, categories)
-#         class_num = CATEGORIES.index(categories)
-#         image_count = 0
-
-#         for img_path in os.listdir(path):
-#             if image_count != 2000:
-#                 try:
-#                     img_array_bgr = cv2.imread(os.path.join(path, img_path))
-#                     img_array_rgb = cv2.cvtColor(
-#                         img_array_bgr, cv2.COLOR_BGR2RGB)
-#                     img_cropped = cv2.resize(img_array_rgb, (64, 64))
-#                     images_data.append([img_cropped, class_num])
-# #                     categories_label.append(class_num)
-#                     image_count += 1
-
-#                 except:
-#                     pass
+    return train_x, test_x, train_y, test_y
 
 
-# create_image()
-
-# train_set = images_data[:1750]
-# train_set.extend(images_data[2000:3750])
-
-# test_set = images_data[1750:2000]
-# test_set.extend(images_data[3750:])
-
-# random.shuffle(train_set)
-# random.shuffle(test_set)
-
-
-# train_x_set_org = []
-# train_y_set = []
-# for i in range(3500):
-#     train_x_set_org.append(train_set[i][0])
-#     train_y_set.append(train_set[i][1])
-
-# test_x_set_org = []
-# test_y_set = []
-# for i in range(500):
-#     test_x_set_org.append(test_set[i][0])
-#     test_y_set.append(test_set[i][1])
-
-# train_x_set_org = np.array(train_x_set_org)
-# train_y = np.array(train_y_set).reshape(1, 3500)
-
-# test_x_set_org = np.array(test_x_set_org)
-# test_y = np.array(test_y_set).reshape(1, 500)
-
-# print('Shape of Training-X set: ', train_x_set_org.shape)
-# print('Shape of Testing-X set: ', test_x_set_org.shape)
-# print('Shape of Training-y set: ', train_y.shape)
-# print('Shape of Testing-y set: ', test_y.shape)
-
-# train_x_set_flatten = train_x_set_org.reshape(train_x_set_org.shape[0], -1).T
-# test_x_set_flatten = test_x_set_org.reshape(test_x_set_org.shape[0], -1).T
-
-# train_x = train_x_set_flatten/255.
-# test_x = test_x_set_flatten/255.
-
-
-# print('Data loading finished! \n\n')
+images = load_images()
+train_cats_dogs, test_cats_dogs = train_test_split(images)
+X_train, X_test, Y_train, Y_test = split_features_labels(train_cats_dogs, test_cats_dogs)
+train_x, test_x, train_y, test_y = generate_dataset(X_train, X_test, Y_train, Y_test)
+print('\n------- Data loading finished! -------\n\n')
