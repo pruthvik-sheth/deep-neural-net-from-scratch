@@ -66,7 +66,10 @@ class Network:
             learning_rate, 
             regularization = False, 
             lambd = 0.7,
-            batch_size = 64
+            batch_size = 64,
+            beta1 = 0.9, 
+            beta2 = 0.9,
+            epsilon = 1e-8
         ):
 
         current_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
@@ -75,9 +78,10 @@ class Network:
         train_summary_writer = tf.summary.create_file_writer(train_log_dir)
         test_summary_writer = tf.summary.create_file_writer(test_log_dir)
 
+        t = 0
         for i in range(epochs):
             mini_batches = self.generate_batches(x_train, y_train, batch_size)
-            
+            t += 1
             for mini_batch in mini_batches:
                 mini_x_train, mini_y_train = mini_batch
 
@@ -103,9 +107,12 @@ class Network:
                 # Backward Propogation
                 error = self.loss_prime(mini_y_train, output)
                 for layer in reversed(self.layers):
-                    error = layer.backward(error, learning_rate, regularization, lambd)
-
-            if (i + 1) % 100 == 0:
+                    if layer.name == "fc_layer":
+                        error = layer.backward(error, learning_rate, regularization, lambd, beta1, beta2, t, epsilon)
+                    else:
+                        error = layer.backward(error)
+                        
+            if (i + 1) % 50 == 0:
                 print('-------------------------------')
                 print('Epoch: %d/%d | Error: %f' % (i+1, epochs, cost))
 

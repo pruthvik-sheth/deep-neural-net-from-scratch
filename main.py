@@ -6,7 +6,7 @@ from Layers.losses import log_loss, log_loss_prime
 
 # Hyperparameters
 EPOCHS = 5000
-LEARNING_RATE = 0.002
+LEARNING_RATE = 0.0002
 REGULARIZATION = True
 LAMBD = 0.95
 
@@ -14,15 +14,15 @@ def main():
     net = Network()
     input_shape = train_x.shape[0]
     net.add(DeepLayer(input_shape, 64))
-    net.add(ActivationLayer(RelU, RelU_prime))
+    net.add(ActivationLayer(RelU, RelU_prime, dropout=True, keep_prob=0.8))
 
     net.add(DeepLayer(64, 64))
     net.add(ActivationLayer(RelU, RelU_prime, dropout=True, keep_prob=0.8))
 
-    net.add(DeepLayer(64, 128))
+    net.add(DeepLayer(64, 64))
     net.add(ActivationLayer(RelU, RelU_prime, dropout=True, keep_prob=0.8))
-
-    net.add(DeepLayer(128, 1))
+    
+    net.add(DeepLayer(64, 1))
     net.add(ActivationLayer(sigmoid, sigmoid_prime))
 
     net.use(log_loss, log_loss_prime)

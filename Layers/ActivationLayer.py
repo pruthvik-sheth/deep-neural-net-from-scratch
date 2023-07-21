@@ -22,7 +22,7 @@ class ActivationLayer:
 
         return self.outputs
 
-    def backward(self, dA, learning_rate, regularization,  lambd):
+    def backward(self, dA):
         if self.dropout:
             dA = dA * self.drops
             dA = dA * self.keep_prob

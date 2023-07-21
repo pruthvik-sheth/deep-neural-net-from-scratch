@@ -7,7 +7,7 @@ import random
 DATADIR = '../Datasets/kagglecatsanddogs_5340/PetImages/'
 CATEGORIES = ["Dog", "Cat"]
 IMAGE_SIZE = 64
-DATASET_SIZE = 5000
+DATASET_SIZE = 4000
 TRAIN_SPLIT = 0.8
 BATCH_SIZE = 64
 
