@@ -8,7 +8,7 @@ DATADIR = '../Datasets/kagglecatsanddogs_5340/PetImages/'
 CATEGORIES = ["Dog", "Cat"]
 IMAGE_SIZE = 64
 DATASET_SIZE = 4000
-TRAIN_SPLIT = 0.8
+TRAIN_SPLIT = 0.9
 BATCH_SIZE = 64
 
 def pre_process_image(img_name, path):
@@ -57,6 +57,7 @@ def load_images():
                     image_count += 1
                 except Exception as e:
                     # In case some broken images are found
+                    print('Corrupt Image found!')
                     pass
             else:
                 break
