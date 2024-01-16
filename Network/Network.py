@@ -1,4 +1,4 @@
-import cupy as np
+import numpy as np
 import datetime
 import tensorflow as tf
 

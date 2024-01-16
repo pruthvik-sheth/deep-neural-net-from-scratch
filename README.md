@@ -30,7 +30,7 @@ This module contains the implementation of the `ActivationLayer` class, responsi
 ```python
 # Sample code for ActivationLayer.py
 
-import cupy as np
+import numpy as np
 
 class ActivationLayer:
     def __init__(self, activation, activation_prime, dropout=False, keep_prob=0.6):
@@ -49,7 +49,7 @@ The DeepLayer class represents a single layer of a neural network and includes t
 ```python
 # Sample code for DeepLayer.py
 
-import cupy as np
+import numpy as np
 
 class DeepLayer:
     def __init__(self, n_inputs, n_neurons) -> None:
